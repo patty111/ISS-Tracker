@@ -33,22 +33,33 @@ def lat_lon_to_mercator(lat, lon, map_width, map_height) -> Tuple[int, int]:    
     return int(y), int(x)
 
 def ISS_loc(lat: float, lon: float) -> list:
-    if map_width < 540:
-        radius = 1
+    if map_width <= 200:
+        side = 0
+    elif map_width <= 540:
+        side = 1
     else:
-        radius = 2
+        side = 2
 
     aspect_ratio = 2
     loc = []
-    for i in range(-radius, radius+1):
-        for j in range(-radius, radius+1):
-            if  lat+i >= 0 and lat+i < map_height and lon+j >= 0 and lon+j < map_width:
-                if (i / aspect_ratio)**2 + j**2 <= radius**2:
-                    loc.append([lat+i, lon+j, '*'])
-                else:
-                    loc.append([lat+i, lon+j, ' '])
-            else:
-                continue
+    for i in range(-side, side+1):
+        if  lat+i >= 0 and lat+i < map_height and lon+i >= 0 and lon+i < map_width:
+            # loc.append([lat+i, lon+i, '*'])
+            loc.append([lat-i, lon+i, '*'])
+            loc.append([lat-i, lon-i, '*'])
+            loc.append([lat+i, lon, '*'])
+            loc.append([lat, lon+i, '*'])
+            # loc.append([lat+i, lon-i, '*'])
+
+    # for i in range(-side, side+1):
+    #     for j in range(-radius, radius+1):
+    #         if  lat+i >= 0 and lat+i < map_height and lon+j >= 0 and lon+j < map_width:
+    #             if (i / aspect_ratio)**2 + j**2 <= radius**2:
+    #                 loc.append([lat+i, lon+j, '*'])
+    #             else:
+    #                 loc.append([lat+i, lon+j, ' '])
+    #         else:
+    #             continue
     return loc
 
 init(autoreset=True)
@@ -62,8 +73,8 @@ img = Image.open("map.png")
 width, height = img.size
 ratio = height / width
 
-map_width = 1560
-map_height = int(ratio * map_width * 0.38)
+map_width = 540
+map_height = int(ratio * map_width * 0.45)
 
 img = img.resize((map_width, int(map_height)))
 img = img.convert('L') # grey scale
@@ -113,11 +124,11 @@ while True:
         else:
             ascii_img[h[0]][h[1]] = Fore.YELLOW + '>' + Fore.RESET
 
-    ascii_img[x][y] = Fore.RED + '&' + Fore.RESET
+    # ascii_img[x][y] = Fore.RED + '&' + Fore.RESET
 
     # Draw ISS location
     for loc in ISS_loc(x, y):
-        ascii_img[loc[0]][loc[1]] = Fore.RED + loc[2] + Fore.RESET
+        ascii_img[loc[0]][loc[1]] = Fore.LIGHTYELLOW_EX + loc[2] + Fore.RESET
 
 
     for row in ascii_img:
