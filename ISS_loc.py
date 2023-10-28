@@ -5,78 +5,64 @@ import os, requests, time, math, copy
 
 # https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/International_Space_Station/Where_is_the_International_Space_Station
 
-def lat_lon_to_mercator(lat, lon, map_width, map_height) -> Tuple[int, int]:    # lat lon
-    longitude_rad = lon * math.pi / 180
-    latitude_rad = lat * math.pi / 180
+init(autoreset=True)
 
-    # calculate longitude scale, it ranges from -pi to +pi radians, so we need to / 2pi to get the scale factor ranging from 0 to 1
-    x_scale = map_width / 2 / math.pi
+img = Image.open("map.png")
+width, height = img.size
+ratio = height / width
+
+MAP_Width = 1600
+MAP_Height = int(ratio * MAP_Width * 0.4)
+
+call_freq = 10 # seconds
+
+history_queue = []
+history_queue_max_size = 10800 / call_freq # 3 hrs (2 orbits), ISS orbits the Earth every 90 minutes
+
+
+def lat_lon_to_mercator(lat, lon, MAP_Width, MAP_Height) -> Tuple[int, int]:    # lat lon
+    longitude_radians = lon * math.pi / 180
+    latitude_radians = lat * math.pi / 180
+
+    x_scale = MAP_Width / 2 / math.pi
 
     # Mercator projection stretches north-south, theoretically ranges from -infinity to +infinity, so we need to dynamic scale it to try to get the relative correct range from 0 to 1
     # Too far north or south and the map distorts, Google Map supports up to 85 degrees north and south
-    min_lat = -85 * math.pi / 180
-    max_lat = 85 * math.pi / 180
+    # min_lat = -85 * math.pi / 180
+    # max_lat = 85 * math.pi / 180
 
-    min_mercator = math.log(math.tan((math.pi / 4) + (min_lat / 2)))
-    max_mercator = math.log(math.tan((math.pi / 4) + (max_lat / 2)))
+    # min_mercator = math.log(math.tan((math.pi / 4) + (min_lat / 2)))
+    # max_mercator = math.log(math.tan((math.pi / 4) + (max_lat / 2)))
 
-    # y_scale = map_height / (max_mercator - min_mercator)
-    y_scale = map_height / 2 / math.pi
+    # y_scale = MAP_Height / (max_mercator - min_mercator)
+    y_scale = MAP_Height / 2 / math.pi
 
-    x = map_width / 2 + x_scale * longitude_rad
+    x = MAP_Width / 2 + x_scale * longitude_radians
     
-    # y = map_height / 2 - y_scale * (math.log(math.tan((math.pi / 4) + (latitude_rad / 2))))
-    y = map_height / 2 - y_scale * math.log((1 + math.sin(latitude_rad)) / (1 - math.sin(latitude_rad)))
+    # y = MAP_Height / 2 - y_scale * (math.log(math.tan((math.pi / 4) + (latitude_radians / 2))))
+    y = MAP_Height / 2 - y_scale * math.log((1 + math.sin(latitude_radians)) / (1 - math.sin(latitude_radians)))
     
-    # print('y_scale: ',y_scale)
-
     return int(y), int(x)
 
 def ISS_loc(lat: float, lon: float) -> list:
-    if map_width <= 200:
+    if MAP_Width <= 200:
         side = 0
-    elif map_width <= 540:
+    elif MAP_Width <= 540:
         side = 1
     else:
         side = 2
 
-    aspect_ratio = 2
     loc = []
     for i in range(-side, side+1):
-        if  lat+i >= 0 and lat+i < map_height and lon+i >= 0 and lon+i < map_width:
-            # loc.append([lat+i, lon+i, '*'])
+        if  lat+i >= 0 and lat+i < MAP_Height and lon+i >= 0 and lon+i < MAP_Width:            
             loc.append([lat-i, lon+i, '*'])
             loc.append([lat-i, lon-i, '*'])
             loc.append([lat+i, lon, '*'])
             loc.append([lat, lon+i, '*'])
-            # loc.append([lat+i, lon-i, '*'])
-
-    # for i in range(-side, side+1):
-    #     for j in range(-radius, radius+1):
-    #         if  lat+i >= 0 and lat+i < map_height and lon+j >= 0 and lon+j < map_width:
-    #             if (i / aspect_ratio)**2 + j**2 <= radius**2:
-    #                 loc.append([lat+i, lon+j, '*'])
-    #             else:
-    #                 loc.append([lat+i, lon+j, ' '])
-    #         else:
-    #             continue
     return loc
 
-init(autoreset=True)
 
-history_queue = []
-history_queue_max_size = 1080 # 3 hrs (2 orbits), ISS orbits the Earth every 90 minutes
-
-# src: https://www.joaoleitao.com/wp-content/uploads/2019/04/World-Map.jpg
-img = Image.open("map.png")
-
-width, height = img.size
-ratio = height / width
-
-map_width = 540
-map_height = int(ratio * map_width * 0.45)
-
-img = img.resize((map_width, int(map_height)))
+img = img.resize((MAP_Width, int(MAP_Height)))
 img = img.convert('L') # grey scale
 pixels = img.getdata()
 
@@ -87,8 +73,8 @@ for pixel_value in pixels:
 
 # Convert the string to a 2D array (lat, lon)
 ascii_img = []  
-for i in range(0, len(ascii_str), map_width):
-    ascii_img.append([char for char in ascii_str[i:i+map_width]])
+for i in range(0, len(ascii_str), MAP_Width):
+    ascii_img.append([char for char in ascii_str[i:i+MAP_Width]])
 
 ascii_backup = copy.deepcopy(ascii_img)
 
@@ -98,15 +84,21 @@ url = 'http://api.open-notify.org/iss-now.json'
 while True:
     os.system("cls")
 
-    response = requests.get(url).json() 
+    try:
+        response = requests.get(url).json() 
+    except Exception as e:
+        print(e)
+        time.sleep(10)
+        continue
+
     LAT = float(response['iss_position']['latitude'])
     LON = float(response['iss_position']['longitude'])
 
-    x, y = lat_lon_to_mercator(LAT, LON, map_width, map_height)
-    # x, y = map_height - int(LAT + 90 % 180), int(LON + 180 % 360)
+    x, y = lat_lon_to_mercator(LAT, LON, MAP_Width, MAP_Height)
+    # x, y = MAP_Height - int(LAT + 90 % 180), int(LON + 180 % 360)
     print(LAT, LON)
     print(x, y)
-    print('Map size: ', map_width, map_height)
+    print('Map size: ', MAP_Width, MAP_Height)
 
     history_queue.insert(0, [x, y])
     
@@ -114,8 +106,6 @@ while True:
         pop_loc = history_queue.pop()
         ascii_img[pop_loc[0]][pop_loc[1]] = Style.RESET_ALL + ascii_backup[pop_loc[0]][pop_loc[1]]
 
-    # if len(history_queue) > 1 and history_queue[0] != history_queue[1]:
-    #     ascii_img[history_queue[1][0]][history_queue[1][1]] = Fore.CYAN + '>' + Fore.RESET
     # Draw 2hr history
     for idx, h in enumerate(history_queue):
         # if first half, be cyan, else yellow
@@ -128,8 +118,10 @@ while True:
 
     # Draw ISS location
     for loc in ISS_loc(x, y):
-        ascii_img[loc[0]][loc[1]] = Fore.LIGHTYELLOW_EX + loc[2] + Fore.RESET
-
+        try:
+            ascii_img[loc[0]][loc[1]] = Fore.LIGHTYELLOW_EX + loc[2] + Fore.RESET
+        except:
+            pass
 
     for row in ascii_img:
         print(''.join(row))
@@ -137,4 +129,5 @@ while True:
     # restore the map
     for loc in ISS_loc(x, y):
         ascii_img[loc[0]][loc[1]] =  Style.RESET_ALL + ascii_backup[loc[0]][loc[1]]
-    time.sleep(10)
+
+    time.sleep(call_freq)
