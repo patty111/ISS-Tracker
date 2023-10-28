@@ -90,11 +90,11 @@ print(LAT, LON)
 print(x, y)
 
 
-for i in range(-84, 85):
-    lat, lon = lat_lon_to_mercator(i, 121.5, map_width, map_height)
-    ascii_img[lat][lon] = Fore.RED + '&' + Fore.RESET
-    if i == 0:
-        ascii_img[lat][lon] = Fore.CYAN + 'X' + Fore.RESET
+# for i in range(-84, 85):
+#     lat, lon = lat_lon_to_mercator(i, 121.5, map_width, map_height)
+#     ascii_img[lat][lon] = Fore.RED + '&' + Fore.RESET
+#     if i == 0:
+#         ascii_img[lat][lon] = Fore.CYAN + 'X' + Fore.RESET
 
 # ascii_img[x][y] = Fore.BLUE + '&' + Fore.RESET
 

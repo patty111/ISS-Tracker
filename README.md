@@ -4,6 +4,13 @@
 
 The trajectory was strange, so I changed to a [better world map](https://www.joaoleitao.com/wp-content/uploads/2019/04/World-Map.jpg) and use Mecator Projection instead
 
+### Result
+result with different map width (120, 342, 540, 1600)
+![Alt text](assets/120.png)
+![Alt text](assets/342.png)
+![Alt text](assets/540.png)
+![Alt text](assets/1600.png)  
+
 ### Mecator Projection
 It is impossible to create a 100% precise 2D map . It will have some error regardless.
 
@@ -52,3 +59,4 @@ In my source code are some commented out lines. I tried to calculate the y coord
 \>`pip install -r requirements.txt`
 
 Steps 1 and 2 may vary on differnt OS  
+
