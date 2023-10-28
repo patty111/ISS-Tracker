@@ -11,7 +11,7 @@ img = Image.open("map.png")
 width, height = img.size
 ratio = height / width
 
-MAP_Width = 1600
+MAP_Width = 540
 MAP_Height = int(ratio * MAP_Width * 0.4)
 
 call_freq = 10 # seconds
