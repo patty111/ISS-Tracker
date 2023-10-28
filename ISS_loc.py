@@ -11,8 +11,8 @@ img = Image.open("map.png")
 width, height = img.size
 ratio = height / width
 
-MAP_Width = 540
-MAP_Height = int(ratio * MAP_Width * 0.4)
+MAP_Width = 342
+MAP_Height = int(ratio * MAP_Width * 0.55)
 
 call_freq = 10 # seconds
 
@@ -109,11 +109,13 @@ while True:
     # Draw 2hr history
     for idx, h in enumerate(history_queue):
         # if first half, be cyan, else yellow
-        if idx < history_queue_max_size // 2:
-            ascii_img[h[0]][h[1]] = Fore.CYAN + '>' + Fore.RESET
-        else:
-            ascii_img[h[0]][h[1]] = Fore.YELLOW + '>' + Fore.RESET
-
+        try:
+            if idx < history_queue_max_size // 2:
+                ascii_img[h[0]][h[1]] = Fore.CYAN + '>' + Fore.RESET
+            else:
+                ascii_img[h[0]][h[1]] = Fore.YELLOW + '>' + Fore.RESET
+        except:
+            pass
     # ascii_img[x][y] = Fore.RED + '&' + Fore.RESET
 
     # Draw ISS location
@@ -128,6 +130,9 @@ while True:
         
     # restore the map
     for loc in ISS_loc(x, y):
-        ascii_img[loc[0]][loc[1]] =  Style.RESET_ALL + ascii_backup[loc[0]][loc[1]]
+        try:
+            ascii_img[loc[0]][loc[1]] =  Style.RESET_ALL + ascii_backup[loc[0]][loc[1]]
+        except:
+            pass
 
     time.sleep(call_freq)

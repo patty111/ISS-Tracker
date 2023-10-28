@@ -36,7 +36,7 @@ y = map_height / 2 - y_scale * math.log((1 + math.sin(latitude_radians)) / (1 - 
 ```  
 map_width(map_height) / 2 centers the map aound latitude/longitude = 0  
 
-In my source code are some commented out lines. I tried to calculate the y coordinates by taking into account the distortion of the Mercator projection, instead of using a constant scale factor($pi$), to get a more accurate map, but the result did not worked well for my map.  
+In my source code are some commented out lines. I tried to calculate the y coordinates by taking into account the distortion of the Mercator projection, instead of using a constant scale factor($pi$), to get a more accurate map, but the result did not work well for my map.  
 
 ### Params
 - MAP_Width: My preference is around 540
