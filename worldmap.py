@@ -1,17 +1,30 @@
 import PIL.Image
 from colorama import Fore, init
-import os, requests, time
+import os, requests, time, math
 
 # https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/International_Space_Station/Where_is_the_International_Space_Station
+
+def lat_lon_to_mercator(lat, lon, map_width, map_height):
+    # TODO: Function Incorrect
+    x = (lon + 180) * (map_width / 360)
+
+    # convert from degrees to radians
+    lat_rad = lat * math.pi / 180
+
+    # mercator projection
+    merc_n = math.log(math.tan((math.pi / 4) + (lat_rad / 2)))
+    y = (map_height / 2) - (map_width * merc_n / (2 * math.pi))
+
+    return int(x), int(y)
 
 init(autoreset=True)
 
 history_queue = []
 history_queue_size = 1800 # 3 hrs, ISS orbits Earth every 90 minutes
 
-
 img_flag = True
-path = "world_map.png"
+path = "map.gif"
+# path = "world_map.png"
 
 try:
     img = PIL.Image.open(path)
@@ -22,13 +35,14 @@ except:
 width, height = img.size
 ratio = height / width
 
-new_width = 540
+new_width = 324
 new_height = int(ratio * new_width * 0.55)
 
 img = img.resize((new_width, int(new_height)))
 img = img.convert('L')
 
-chars = "@JD%*P.Y +#"
+# chars = "@JD%*P.Y +#"
+chars = " @JD%*P+#Y."
 
 pixels = img.getdata()
 
@@ -49,10 +63,12 @@ while True:
     lon = float(response['iss_position']['longitude'])
     # print(response)
 
-    rel_coord = [int((90 + lat) / 180 * new_height), int((lon + 180) / 360 * new_width)]
-    rel_pos = (new_height - rel_coord[0]) * new_width + rel_coord[1]
+    # rel_coord = [int((90 + lat) / 180 * new_height), int((lon + 180) / 360 * new_width)]
+    x, y = lat_lon_to_mercator(lat, lon, new_width, new_height)
+    rel_pos = y * new_width + x
+    # rel_pos = (new_height - rel_coord[0]) * new_width + rel_coord[1]
     print('latitude and longitude: ', lat, lon, 'perct: ', (90 + lat) / 180 * 100, '%  ' , (lon + 180) / 360 * 100, '%')
-    print('relative coordinate: ', rel_coord, ' perct: ', rel_coord[0] / new_height * 100, '%  ', rel_coord[1] / new_width * 100, '%')
+    # print('relative coordinate: ', rel_coord, ' perct: ', rel_coord[0] / new_height * 100, '%  ', rel_coord[1] / new_width * 100, '%')
 
     print('relative position: ', rel_pos)
 
