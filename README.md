@@ -5,7 +5,10 @@
 The trajectory was strange, so I changed to a [better world map](https://www.joaoleitao.com/wp-content/uploads/2019/04/World-Map.jpg) and use Mecator Projection instead
 
 ### Result
-result with different map width (120, 540)
+![Alt Text](assets/orbit.gif)
+
+##### result with different map width (120 and 540)  
+
 ![Alt text](assets/120.png)
 ![Alt text](assets/540.png)  
 
