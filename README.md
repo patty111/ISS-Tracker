@@ -5,11 +5,12 @@
 The trajectory was strange, so I changed to a [better world map](https://www.joaoleitao.com/wp-content/uploads/2019/04/World-Map.jpg) and use Mecator Projection instead
 
 ### Result
-result with different map width (120, 342, 540, 1600)
+result with different map width (120, 540)
 ![Alt text](assets/120.png)
-![Alt text](assets/342.png)
-![Alt text](assets/540.png)
-![Alt text](assets/1600.png)  
+![Alt text](assets/540.png)  
+
+##### Trajectory for 7 hrs
+![Alt text](assets/7hrs.png)  
 
 ### Mecator Projection
 It is impossible to create a 100% precise 2D map . It will have some error regardless.
@@ -49,6 +50,7 @@ In my source code are some commented-out lines. I tried to calculate the y coord
 - MAP_Width: My preference is around 540
 - MAP_Height: `int(ratio * MAP_Width * 0.4)`, you can change the number to anything you like
 - call_freq: by default the app will send request to the API endpoint every 10 seconds.  
+- history_queue_max_size: modify this to show longer/shorter trajectory (default 3 hrs).
 
 ### Build
 1. Create virtual env  
