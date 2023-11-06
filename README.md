@@ -63,5 +63,7 @@ In my source code are some commented-out lines. I tried to calculate the y coord
 3. Install dependencies  
 \>`pip install -r requirements.txt`
 
-Steps 1 and 2 may vary on differnt OS  
+Steps 1 and 2 may vary on differnt OS   
 
+### Reference
+- [Wikipedia](https://en.wikipedia.org/wiki/Mercator_projection)
